@@ -29,8 +29,34 @@
          ((> ,var ,end))
        ,@body)))
 
-(defmacro do-primes ((var start end) &body body)
-  "streamlined version using a destructuring parameter list."
+(defmacro do-primes-v2 ((var start end) &body body)
+  "streamlined version using a destructuring parameter list.
+   The end form gets evaluated more than once. This can be
+   verified by passing an expression instead of a literal number."
   `(do ((,var (next-prime ,start) (next-prime (1+ ,var))))
        ((> ,var ,end))
      ,@body))
+
+(defmacro do-primes-v3 ((var start end) &body body)
+  "the end form is evaluated a single time by binding
+   it to a variable, using GENSYM to use a unique name
+   that is unlikely to be used by the caller."
+  (let ((ending-value-name (gensym)))
+    `(do ((,var (next-prime ,start) (next-prime (1+ ,var)))
+          (,ending-value-name ,end))
+         ((> ,var ,ending-value-name))
+     ,@body)))
+
+(defmacro with-gensyms ((&rest names) &body body)
+  "Bind each var name passed in to a unique name."
+  `(let ,(loop for n in names collect `(,n (gensym)))
+     ,@body))
+
+(defmacro do-primes-v4 ((var start end) &body body)
+  "Use a macro to handle the GENSYMS part of the do-primes macro."
+  (with-gensyms (ending-value-name)
+    `(do ((,var (next-prime ,start) (next-prime (1+ ,var)))
+          (,ending-value-name ,end))
+         ((> ,var ,ending-value-name))
+     ,@body)))
+
