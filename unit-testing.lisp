@@ -8,6 +8,11 @@
   `(let ,(loop for n in names collect `(,n (gensym)))
      ,@body))
 
+(defmacro deftest (name parameters &body body)
+  `(defun ,name ,parameters
+     (let ((*test-name* (append *test-name* (list ',name))))
+       ,@body)))
+
 (defmacro combine-results (&body forms)
   (with-gensyms (result)
     `(let ((,result t))
@@ -22,20 +27,19 @@
   (format t "~:[FAIL~;pass~] ... ~a: ~a~%" result *test-name* form)
   result)
 
-(defun test-+ ()
-  (let ((*test-name* 'test-+)) 
-    (check 
-      (= (+ 1 2) 3)
-      (= (+ 1 2 3) 6)
-      (= (+ -1 -3) -4))))
+;; The following functions are sample unit tests
+(deftest test-+ ()
+  (check 
+    (= (+ 1 2) 3)
+    (= (+ 1 2 3) 6)
+    (= (+ -1 -3) -4)))
 
-(defun test-* ()
-  (let ((*test-name* 'test-*))
-    (check
-      (= (* 2 2) 4)
-      (= (* 3 5 6) 15))))
+(deftest test-* ()
+  (check
+    (= (* 2 2) 4)
+    (= (* 3 5 6) 15)))
 
-(defun test-arithmetic ()
+(deftest test-arithmetic ()
   (combine-results
     (test-+)
     (test-*)))
