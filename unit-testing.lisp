@@ -25,3 +25,13 @@
     (= (+ 1 2) 3)
     (= (+ 1 2 3) 6)
     (= (+ -1 -3) -4)))
+
+(defun test-* ()
+  (check
+    (= (* 2 2) 4)
+    (= (* 3 5 6) 15)))
+
+(defun test-arithmetic ()
+  (combine-results
+    (test-+)
+    (test-*)))
